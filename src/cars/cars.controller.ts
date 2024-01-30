@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -26,13 +27,19 @@ export class CarsController {
   }
 
   @Get()
-  async findAll(@Query() query: Car) {
+  async findAll(@Query() query: any) {
+    console.log(query);
     return await this.carService.findAll(query);
   }
 
   @Get('make')
   async findMake() {
     return await this.carService.findMake();
+  }
+
+  @Get('model-by-make')
+  async findModelByMake(@Query() make: any) {
+    return await this.carService.findModelByMake(make);
   }
 
   @Get('model')
@@ -60,5 +67,10 @@ export class CarsController {
     @Body() carsPayload: Car,
   ) {
     return this.carService.update(id, carsPayload);
+  }
+
+  @Delete('/:id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.carService.remove(id);
   }
 }
