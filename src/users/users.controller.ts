@@ -69,13 +69,18 @@ export class UsersController {
     if (!user) throw new BadRequestException('Invalid Credentials');
 
     if (!(await bcrypt.compare(password, user.password)))
-      throw new BadRequestException('Invalid Credentials');
+      return {
+        status: 400,
+        error: 'Bad Request',
+        msg: 'Invalid Credentials',
+      };
 
     const jwt = await this.jwtService.signAsync({ id: user.id });
 
-    const res: { token: string; user: User } = {
+    const res: { token: string; user: User; status: number } = {
       token: jwt,
       user: { ...user, password: undefined },
+      status: 200,
     };
 
     response.cookie('jwt', jwt, { httpOnly: true });
