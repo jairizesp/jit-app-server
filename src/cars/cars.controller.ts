@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -22,14 +23,30 @@ export class CarsController {
   constructor(private readonly carService: CarsService) {}
 
   @Post()
-  async create(@Body() payload: Car) {
-    return await this.carService.create(payload);
+  async create(@Body() payload: Car, @Res() response: Response) {
+    const result = await this.carService.create(payload);
+
+    if (result.status === 'success') {
+      return response
+        .status(HttpStatus.CREATED)
+        .json({ status: HttpStatus.CREATED });
+    } else {
+      return response
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ status: result.status });
+    }
   }
 
   @Get()
   async findAll(@Query() query: any) {
     console.log(query);
     return await this.carService.findAll(query);
+  }
+
+  @Get('search')
+  async findCarsBySearchTerm(@Query() query: any) {
+    console.log('SEARCH QUERY: ', query);
+    return await this.carService.findCarsBySearchTerm(query);
   }
 
   @Get('make')
@@ -65,8 +82,19 @@ export class CarsController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() carsPayload: Car,
+    @Res() response: Response,
   ) {
-    return this.carService.update(id, carsPayload);
+    const result = await this.carService.update(id, carsPayload);
+
+    if (result.status === 'success') {
+      return response.status(HttpStatus.OK).json({ status: HttpStatus.OK });
+    } else {
+      return response
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ status: result.status });
+    }
+
+    // return
   }
 
   @Delete('/:id')

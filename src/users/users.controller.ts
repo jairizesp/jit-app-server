@@ -25,25 +25,19 @@ export class UsersController {
     const is_existing = await this.userService.findByEmail(body.email);
 
     if (is_existing) {
-      throw new HttpException(
-        {
-          status: HttpStatus.CONFLICT,
-          error: 'Email already exists',
-        },
-        HttpStatus.CONFLICT,
-      );
+      return {
+        status: HttpStatus.CONFLICT,
+        error: 'Email already exists',
+      };
     }
 
     const hashed_password = await bcrypt.hash(body.password, 12);
 
     if (body.password.length < 6) {
-      throw new HttpException(
-        {
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          error: 'Password must contain 6 or more characters',
-        },
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+      return {
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        error: 'Password must contain 6 or more characters',
+      };
     }
 
     await this.userService.create({
